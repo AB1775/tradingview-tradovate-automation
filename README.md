@@ -2,7 +2,7 @@
 This project translates TradingView alerts to syntax compatible with the Tradovate API for automated futures trading.
 
 ## Project Requirements
-Running this program requires a paid TradinView plan (Essential or better) to access alerts and webhooks over HTTPS and access to the TradingView API (a funded account with a balance of $1,000 or greater and a $25 per month subscription to the API). This project can be ran locally or on one of several cloud platforms. For hosting, ensure that SSH keys are used for access and that root login is disabled for SSH. If password authentication for SSH is absolutely required, implement a service such as Fail2Ban to prevent excessive failed password attempts. This project does not contain a pre-built strategy, only the javascript infrastructure required to automate a strategy. For more information, see the documentation below:
+Running this program requires a paid TradinView plan (Essential or better) to access alerts and webhooks over HTTPS and access to the TradingView API (a funded account with a balance of $1,000 or greater and a $25 per month subscription to the API). This project can be ran locally or on one of several cloud platforms. Note that TradingView requires webhook connections to be accessible via port 443 over HTTPS, ensure that any firewall configurations allow this connection to be established from the following IP addresses: 52.89.214.238, 34.212.75.30, 54.218.53.128, and 52.32.178.7. This project uses Let's Encrypt to establish the mechanisms for HTTPS. For hosting, ensure that SSH keys are used for access and that root login is disabled for SSH in the sshd config file. If password authentication for SSH is absolutely required, implement a service such as Fail2Ban to prevent excessive failed password attempts and ensure that password login for the root user is disabled in the sshd config file. This project does not contain a pre-built strategy, only the javascript infrastructure required to automate a strategy. For more information, see the documentation below:
 
 #### Tradovate API Documentation
 ```
@@ -12,11 +12,11 @@ https://api.tradovate.com/
 ```
 https://www.tradingview.com/charting-library-docs/latest/introduction
 ```
-#### PineScript Documentation
+#### PineScript Documentation (for scripting on the TradingView platform)
 ```
 https://www.tradingview.com/pine-script-docs/welcome/
 ```
-#### Let's Encrypt Documentation (for HTTPS / SSL / TLS info)
+#### Let's Encrypt Documentation (for configuring HTTPS keys)
 ```
 https://letsencrypt.org/docs/
 ```
@@ -24,9 +24,13 @@ https://letsencrypt.org/docs/
 ```
 https://docs.digitalocean.com/products/droplets/
 ```
-#### Fail2Ban Documentation
+#### Fail2Ban Documentation (recommended as a fail-safe measure in case SSH keys have to be temporarily disabled or are incorrectly configured)
 ```
 https://help.ubuntu.com/community/Fail2ban
+```
+#### Additional Information on SSH and sshd can be found here:
+```
+https://www.openssh.org/manual.html
 ```
 
 ## Project Overview
@@ -49,7 +53,7 @@ while the OCO order is sent to the "sendoco" endpoint:
 ```javascript
 let sendOCO = sendOrderPacket(ocoOrderPacket, apiURLs.PLACE_OCO_URL)
 ```
-The responses associated with each of these packets is then pared, returning the order ID associated with each order.
+The responses associated with each of these packets is then parsed, returning the order ID associated with each order.
 
 The logic for limit orders for this project is implemented using OCO orders, where the triggering of one order automatically cancels the other. These can be found in server.js:
 ```javascript
