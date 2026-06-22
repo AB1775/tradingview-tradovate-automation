@@ -1,0 +1,8 @@
+{
+    "name": "tradovate-automation",
+    "version": "0.0.1",
+    "type": "module",
+    "dependencies": {
+        "express": "^5.2.1"
+    }
+}
