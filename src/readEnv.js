@@ -39,10 +39,10 @@ export function readEnv(filePath, func) {
 
                             credentials[key.trim()] = value.trim()
                         } else {
-                            console.warn('[Credentials Error] Undefined Line in .env File:', line)
+                            console.warn('[API URL Parsing Error] Undefined Line in .env File:', line)
                         }
                     } catch (e) {
-                        console.error('[Credentials Error] Unable to Parse Credentials:', e)
+                        console.error('[API URL Parsing Error] Unable to Parse URLs:', e)
                     }
                     break;
                 
