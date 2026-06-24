@@ -1,6 +1,6 @@
 import { readEnv } from "./readEnv.js"
 import https from 'node:https'
-import { app, domain, port, options } from './Sources/TradingView/server.js'
+import { app, options } from './Sources/TradingView/server.js'
 import { apiURLs, credentials, authResponse, createAuthPacket, sendAuthPacket, renewAuthPacket } from './Sources/Tradovate/apiHandler.js'
 
 readEnv("../.env", 0)

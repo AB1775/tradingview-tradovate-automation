@@ -14,8 +14,8 @@ app.use((req, res, next) => {                     // Validate Request Type
   }
 })
 
-export const domain = '' // Populate Me
-export const port = 443
+const domain = '' // Populate Me
+const port = 443
 
 export const options = {
   key: fs.readFileSync(`/etc/letsencrypt/live/${domain}/privkey.pem`, 'utf8'),

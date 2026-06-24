@@ -35,7 +35,7 @@ export class authResponse {
 
 export class order {
     // Root Order
-    accountID = null
+    accountId = null
     action = null
     symbol = null
     orderQty = null
@@ -54,9 +54,9 @@ export class order {
     b2Price = null
     b2TimeInForce = null
 
-    constructor(accountID, action, symbol, orderQty, orderType, price, b1Action, b1OrderType, b1Price, b1TimeInForce, b2Action, b2OrderType, b2Price, b2TimeInForce) {
+    constructor(accountId, action, symbol, orderQty, orderType, price, b1Action, b1OrderType, b1Price, b1TimeInForce, b2Action, b2OrderType, b2Price, b2TimeInForce) {
         // Root Order
-        this.accountID = accountID
+        this.accountId = accountId
         this.action = action
         this.symbol = symbol
         this.orderQty = orderQty
@@ -77,7 +77,7 @@ export class order {
     }
 
     outputParameterTypes() {
-        console.log("[accountID Type]: " + typeof this.accountID)
+        console.log("[accountId Type]: " + typeof this.accountId)
         console.log("[action Type]: " + typeof this.action)
         console.log("[symbol Type]: " + typeof this.symbol)
         console.log("[orderQty Type]: " + typeof this.orderQty)
@@ -115,7 +115,7 @@ export function createAuthPacket(USERNAME, PASSWORD) {
     return {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: `{"name":"${credentials.USERNAME}","password":"${credentials.PASSWORD}","appId":"${credentials.APP_ID}","appVersion":"${credentials.APP_VERSION}","deviceId":"${credentials.DEVICE_ID}","cid":"${credentials.CID}","sec":"${credentials.SEC}"}`
+        body: `{"name":"${USERNAME}","password":"${PASSWORD}","appId":"${credentials.APP_ID}","appVersion":"${credentials.APP_VERSION}","deviceId":"${credentials.DEVICE_ID}","cid":"${credentials.CID}","sec":"${credentials.SEC}"}`
     }
 }
 
@@ -142,8 +142,8 @@ export async function sendAuthPacket(packet, url) {
 }
 
 // OCO Orders
-export function createOrder(accountID, action, symbol, orderQty, orderType, price, b1Action, b1OrderType, b1Price, b1TimeInForce, b2Action, b2OrderType, b2Price, b2TimeInForce) {
-    const populatedOrder = new order(accountID, action, symbol, orderQty, orderType, price, b1Action, b1OrderType, b1Price, b1TimeInForce, b2Action, b2OrderType, b2Price, b2TimeInForce)
+export function createOrder(accountId, action, symbol, orderQty, orderType, price, b1Action, b1OrderType, b1Price, b1TimeInForce, b2Action, b2OrderType, b2Price, b2TimeInForce) {
+    const populatedOrder = new order(accountId, action, symbol, orderQty, orderType, price, b1Action, b1OrderType, b1Price, b1TimeInForce, b2Action, b2OrderType, b2Price, b2TimeInForce)
     return populatedOrder
 }
 
@@ -177,7 +177,7 @@ export function createOCOPacket(accessToken, order) {
 export function createOrderPacket(accessToken, order) {    
     const mainOrderBody = {
         accountSpec: credentials.ACCOUNT_SPEC,
-        accountId: order.accountID,
+        accountId: order.accountId,
         action: order.action,
         symbol: order.symbol,
         orderQty: order.orderQty,
