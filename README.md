@@ -1,72 +1,42 @@
 # tradingview-tradovate-automation
-This project translates TradingView alerts to syntax compatible with the Tradovate API for automated futures trading.
+Translates TradingView alerts to syntax compatible with the Tradovate API for automated futures trading.
 
-## Project Requirements
-Running this program requires a paid TradinView plan (Essential or better) to access alerts and webhooks over HTTPS and access to the TradingView API (a funded account with a balance of $1,000 or greater and a $25 per month subscription to the API). This project can be ran locally or on one of several cloud platforms. Note that TradingView requires webhook connections to be accessible via port 443 over HTTPS, ensure that any firewall configurations allow this connection to be established from the following IP addresses: 52.89.214.238, 34.212.75.30, 54.218.53.128, and 52.32.178.7. This project uses Let's Encrypt to establish the mechanisms for HTTPS. For hosting, ensure that SSH keys are used for access and that root login is disabled for SSH in the sshd config file. If password authentication for SSH is absolutely required, implement a service such as Fail2Ban to prevent excessive failed password attempts and ensure that password login for the root user is disabled in the sshd config file. This project does not contain a pre-built strategy, only the javascript infrastructure required to automate a strategy. For more information, see the documentation below:
+## What this project does
+This project receives JSON webhooks from TradingView and converts them into Tradovate-compatible order packets (single orders and OCO order). It is intended to be the bridge between TradingView strategies and Tradovate order endpoints. It is also a DIY alternative to the many subscription services offering this functionality.
 
-#### Tradovate API Documentation
-```
-https://api.tradovate.com/
-```
-#### TradingView Documentation
-```
-https://www.tradingview.com/charting-library-docs/latest/introduction
-```
-#### PineScript Documentation (for scripting on the TradingView platform)
-```
-https://www.tradingview.com/pine-script-docs/welcome/
-```
-#### Let's Encrypt Documentation (for configuring HTTPS keys)
-```
-https://letsencrypt.org/docs/
-```
-#### Digital Ocean Droplet Documentation (I personally use this solution for hosting)
-```
-https://docs.digitalocean.com/products/droplets/
-```
-#### Fail2Ban Documentation (recommended as a fail-safe measure in case SSH keys have to be temporarily disabled or are incorrectly configured)
-```
-https://help.ubuntu.com/community/Fail2ban
-```
-#### Additional Information on SSH and sshd can be found here:
-```
-https://www.openssh.org/manual.html
-```
+## Features
+* Accepts TradingView JSON alerts and maps fields to Tradovate API payloads
+* Supports sendorder and OCO (sendoco) endpoints
+* Minimal, configurable transform logic for limit and stop orders
 
-## Project Overview
-This project takes JSON alerts from TradingView and transforms them into valid Tradovate API syntax for automated futures trading. For my implementation, I use the following JSON structure to send alerts. Note that take-profit and stop-loss calculations are hard-coded within the project itself because, for my case, they are fixed values. Both the root order (sent via TradingView) and the OCO bracket order (created locally) are combined into a single instance of the order class despite originating from two different sources.
+## Quick Start (High Level)
+1. Clone the repo and install Express (npm)
+2. Configure Tradovate credentials and any other secrets as environment variables.
+3. Start the service (node index.js) on an HTTPS endpoint and point your TradingView alert webhook to it.
+4. Send a sample alert to verify the project transforms the alert into Tradovate order packets.
+
+## Example alert JSON
 ```json
 {
   "action":"{{strategy.order.action}}",
-  "symbol":"Your symbol here",
+  "symbol":"ESZ21",
   "orderQty":1,
   "orderType":"Limit",
-  "price":{{close}} 
+  "price":{{close}}
 }
 ```
 
-The root order is sent to the "sendorder" endpoint on the Tradovate API:
-```javascript
-let sendRoot = sendOrderPacket(rootOrderPacket, apiURLs.PLACE_ORDER_URL)
-```
-while the OCO order is sent to the "sendoco" endpoint:
-```javascript
-let sendOCO = sendOrderPacket(ocoOrderPacket, apiURLs.PLACE_OCO_URL)
-```
-The responses associated with each of these packets is then parsed, returning the order ID associated with each order.
+## How it works
+* The app accepts a TradingView webhook, parses the JSON, and builds one or more Tradovate order packets.
+* Limit orders are implemented as OCO (one-cancels-other) where applicable: the take-profit and stop-loss orders are sent to the Tradovate OCO endpoint and the root order is sent to the sendorder endpoint.
+* Responses from Tradovate are parsed to obtain order IDs and status information.
 
-The logic for limit orders for this project is implemented using OCO orders, where the triggering of one order automatically cancels the other. These can be found in server.js:
-```javascript
-// OSO Orders
-b1Action = "Buy"           // Take Profit
-b1OrderType = "Limit"
-b1Price = parsedOrderPrice - 10.00
-b1TimeInForce = "Day"
-  
-b2Action = "Buy"           // Stop-Loss
-b2OrderType = "Stop"
-b2Price = parsedOrderPrice + 10.00
-b2TimeInForce = "Day"
-```
+## Security Notes
+* Webhooks should be served over HTTPS and allow incoming requests from 52.89.214.238, 34.212.75.30, 54.218.53.128, and 52.32.178.7.
+* Do not expose admin endpoints publicly.
+* When using SSH to access a deployed machine, always authenticate using keys, disable password login, disable root login altogether via SSH. If password authentication is absolutely required, consider using a service such as Fail2Ban.
 
-For strategies that do not require fixed stops or take-profit values, the best options are to either calculate them dynamically within your PineScript or to only use the "sendorder" endpoint to send one packet that opens the position and another packet that closes the position. Everything in this project can be customized as long as the authentication flow and access token renewal functionality remains intact.
+## References
+- Tradovate API: https://api.tradovate.com/
+- TradingView docs: https://www.tradingview.com/charting-library-docs/latest/introduction
+- PineScript: https://www.tradingview.com/pine-script-docs/welcome/
